@@ -5,5 +5,8 @@ priv
 *.o
 *.beam
 *.plt
+.svn
 *~
 #*#
+.DS_Store
+
