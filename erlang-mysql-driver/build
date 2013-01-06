@@ -1,0 +1,1 @@
+erlc -obin test/*erl src/*erl
