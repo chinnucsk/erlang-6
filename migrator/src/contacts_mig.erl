@@ -5,23 +5,29 @@
 -module(contacts_mig).
 -compile(export_all).
 
-update_contacts([[ID, SortName]|T]) ->
-    io:format("ID: ~p - ~ts~n", [ID, SortName]),
+update_contacts([[ID, DispName]|T]) ->
     mysql:prepare(update_contacts, <<"UPDATE SYNC_Contacts SET sort_name=? WHERE __id=?">>),
+    SortName = mbcs:encode(mbcs:decode(DispName, utf8), gbk, [{error, ignore}] ),
+    io:format("SortName: ~p~n", [SortName]),
+    io:format("ID: ~p - DispName: ~p~n", [ID, DispName]),
     Result = mysql:execute(p1, update_contacts, [SortName, ID]),
     %mysql:prepare(find, <<"select * from SYNC_Contacts where __id=?">>),
     %Result = mysql:execute(p1, find, [ID]),
     io:format("mysql:execute result: ~p~n", [Result]),
     update_contacts(T),
-    ID;
+    ok;
 update_contacts([]) ->
-    true.
+    ok.
 
 testzh() ->
     Zh = "Erlang的Unicode支持",
     io:format("~ts~n",[Zh]).
 
 start() ->
+    code:add_patha("/home/qujian/project/erlang/src/mbcs"),
+    RetMbcs = mbcs:start(),
+    io:format("RetMbcs: ~p~n", [RetMbcs]),
+    io:format("mbcs:encode(\"世界，你好\", gbk, [{error, ignore}] ) = ~p~n", [mbcs:encode("世界，你好", gbk, [{error, ignore}] ) ] ),
     %compile:file("/usr/local/lib/erlang/lib/mysql/mysql.erl"),
     %compile:file("/usr/local/lib/erlang/lib/mysql/mysql_conn.erl"),
     
