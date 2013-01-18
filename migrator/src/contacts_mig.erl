@@ -5,6 +5,9 @@
 -module(contacts_mig).
 -compile(export_all).
 
+test_gbk() ->
+    gbk:get_pinyin().
+
 update_contacts([[ID, DispName]|T]) ->
     mysql:prepare(update_contacts, <<"UPDATE SYNC_Contacts SET sort_name=? WHERE __id=?">>),
     SortName = mbcs:encode(mbcs:decode(DispName, utf8), gbk, [{error, ignore}] ),
@@ -49,9 +52,7 @@ start() ->
 %		     "('Ulf Wiger', 'USA')">>),
 
     %% Execute a query (using a binary)
-    Result1 = mysql:fetch(p1, <<"SELECT __id, data1 FROM SYNC_ContactsData WHERE mime='vnd.android.cursor.item/name'">>),
-    %io:format("Result1: ~p~n", [Result1]),
-    {data, {mysql_result, _, Rowset, _, _} } = Result1,
+    {data, {mysql_result, _, Rowset, _, _} } = mysql:fetch(p1, <<"SELECT __id, data1 FROM SYNC_ContactsData WHERE mime='vnd.android.cursor.item/name'">>),
     %io:format("Rowset: ~p~n", [Rowset]),
     update_contacts(Rowset),
 
