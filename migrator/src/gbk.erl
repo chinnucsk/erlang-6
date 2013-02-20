@@ -441,7 +441,30 @@ init() ->
     ets:insert(gbk_table, GBK3),
     ets:insert(gbk_table, GBK4).
 
-get_pinyin(_) ->
-    init(),
-    [GBK] = ets:lookup(gbk_table, gb2312),
-    lists:nth(66, GBK#gbk_table.value).
+get_pinyin(GBChar) ->
+    <<Ch1, _>> = GBChar,
+    Ch2 = 0, 
+    Ch1p = Ch1 + 256,
+    io:format("~p\t ~p~n", [Ch1, Ch2]),
+    [GB2312] = ets:lookup(gbk_table, gb2312),
+    [GBK3] = ets:lookup(gbk_table, gbk3),
+    [GBK4] = ets:lookup(gbk_table, gbk4),
+
+    if
+	(Ch1 > 0) and (Ch1 < 129) ->
+	    Ch1;
+	(Ch1p =< 254) and (Ch1p >= 170) ->
+	    if
+		Ch2 > 160 ->
+		    At = (Ch1p - 176)*94 + (Ch2-160),
+		    lists:nth(At, GB2312#gbk_table.value);
+		true ->
+		    At = (Ch1p - 170)*97 + (Ch2-63),
+		    lists:nth(At, GBK4#gbk_table.value)
+	    end;
+	(Ch1p =< 160) and (Ch1p >= 129) ->
+	    At = (Ch1p - 129)*191 + (Ch2-63),
+	    lists:nth(At, GBK3#gbk_table.value);
+	true ->
+	    '#'
+    end.

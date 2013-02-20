@@ -332,4 +332,3 @@ from_to(StringOrBinary, InputEncoding, OutputEncoding, Options) ->
         error:_ ->
             {error, unkonwn_error}
     end.
-    

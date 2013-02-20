@@ -6,7 +6,16 @@
 -compile(export_all).
 
 test_gbk() ->
-    gbk:get_pinyin().
+    gbk:init(),
+    code:add_patha("/home/qujian/project/erlang/src/mbcs"),
+    mbcs:start(),
+    [CharList] = io_lib:format("~ts", ["这"]),
+    Bin = erlang:iolist_to_binary(CharList),
+    BinList = unicode:characters_to_list(Bin),
+    %Decode = mbcs:decode(Bin, utf8),
+    GBChar = mbcs:encode(BinList, gbk),
+    io:format("Bin: ~p\tBinList: ~p\tGBChar: ~p~n", [Bin, BinList, GBChar]),
+    gbk:get_pinyin(GBChar).
 
 update_contacts([[ID, DispName]|T]) ->
     mysql:prepare(update_contacts, <<"UPDATE SYNC_Contacts SET sort_name=? WHERE __id=?">>),
